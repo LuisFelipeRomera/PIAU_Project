@@ -1,0 +1,42 @@
+---
+title: "PIAU"
+author: "Luís Romera"
+format: html
+editor: visual
+---
+
+*This document is an attempt to work alternative statistics for the article **Cell-Type-Specific Immuno-Angiogenic Modulation in Trophoblasts by Curcumin Solid Lipid Nanoparticles.***
+
+## The Data
+
+First, let's take a look at the data:
+
+We are working in the statistics of topic ***4.1 Modulation of Inflammation and Angiogenesis in Trophoblast Cells***.
+
+Here, the authors measure the expression of two proteins:
+
+-   **PIGF**
+
+-   **Endoglin**
+
+Through four groups, the **Control group** and other three groups of crescent concentrations:
+
+-   **0.001**
+
+-   **0.256**
+
+-   **524.3**
+
+And through two cell lines:
+
+-   **HTR8/SVneo**
+
+-   **BeWo**
+
+## Original Statistics
+
+In the original statistics, it was performed an *ANOVA* test between control and concentration groups, for the two proteins and cell lines, which did not performed significantly.
+
+## Alternative statistics
+
+Now what I'm going to do is try an alternative statistic, involving fitting a **regression line** trough the data and trying to prove that the angular coefficient is significantly different than zero.
