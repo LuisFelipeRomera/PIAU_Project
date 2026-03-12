@@ -33,6 +33,31 @@ And through two cell lines:
 
 -   **BeWo**
 
+```{r}
+setwd("C:/Users/luisr/Documentos/Documents/Documentos - Copia/Projeto Thati/PIAU_Project") #moving to the files directory
+
+dataWB <- read.csv("Dados_westernblot_form.csv") #Importing the data
+
+View(dataWB) #visualizing the data
+head(dataWB)
+
+dataWB$conc <- as.character(dataWB$conc) #Changing concentration to character instead of double
+```
+
+Let's plot the data for some insights
+
+```{r}
+#| message: false
+#| warning: false
+#install.packages("tidyverse") #installing tidyverse for some visualization tools
+library(tidyverse) #loading tidyverse
+
+ggplot(data = dataWB) +
+  geom_point(mapping = aes(x = conc, y = exp, colour = prot), 
+             size = 3)
+```
+
+
 ## Original Statistics
 
 In the original statistics, it was performed an *ANOVA* test between control and concentration groups, for the two proteins and cell lines, which did not performed significantly.
