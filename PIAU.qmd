@@ -1,7 +1,7 @@
 ---
 title: "PIAU"
 author: "Luís Romera"
-format: html
+format: pdf
 editor: visual
 ---
 
@@ -34,34 +34,216 @@ And through two cell lines:
 -   **BeWo**
 
 ```{r}
-setwd("C:/Users/luisr/Documentos/Documents/Documentos - Copia/Projeto Thati/PIAU_Project") #moving to the files directory
+#install.packages("magick")
+library(magick)
+setwd(
+  "C:/Users/luisr/Documentos/Documents/Documentos - Copia/Projeto Thati/PIAU_Project"
+  ) #moving to the file's directory
 
-dataWB <- read.csv("Dados_westernblot_form.csv") #Importing the data
+dataWB_HTR8 <- read.csv(
+  "Dados_westernblot_form_HTR8.csv"
+  ) #Importing the data
 
-View(dataWB) #visualizing the data
-head(dataWB)
+View(
+  dataWB_HTR8
+  ) #visualizing the data
+head(
+  dataWB_HTR8
+  )
 
-dataWB$conc <- as.character(dataWB$conc) #Changing concentration to character instead of double
+dataWB_HTR8$conc <- as.character(
+  dataWB_HTR8$conc
+  ) #Changing concentration to character instead of double so we can plot smoother 
 ```
+
+### HTR8
+
+We shall begin with **HTR8** cells
 
 Let's plot the data for some insights
 
 ```{r}
 #| message: false
 #| warning: false
+#| dev: png
 #install.packages("tidyverse") #installing tidyverse for some visualization tools
-library(tidyverse) #loading tidyverse
+library(
+  tidyverse
+  ) #loading tidyverse
 
-ggplot(data = dataWB) +
-  geom_point(mapping = aes(x = conc, y = exp, colour = prot), 
-             size = 3)
+ggplot(
+   data = dataWB_HTR8
+  ) +
+  geom_point(
+    mapping = aes(
+      x = conc, y = exp, colour = prot
+      ), 
+             size = 3
+    ) +
+  labs(
+    title = "Western Blot HTR8",
+    x = "Dose Concentration (ug)",
+    y = "Relative Protein Expression",
+    color = "Protein"
+  )
 ```
-
 
 ## Original Statistics
 
 In the original statistics, it was performed an *ANOVA* test between control and concentration groups, for the two proteins and cell lines, which did not performed significantly.
 
+In my perception, the data has a correlation, so measuring the difference between groups (such as using ANOVA) may hide this behavior.
+
 ## Alternative statistics
 
 Now what I'm going to do is try an alternative statistic, involving fitting a **regression line** trough the data and trying to prove that the angular coefficient is significantly different than zero.
+
+```{r}
+#Let's change concentration back to "numeric" so we can do some calculations
+dataWB_HTR8$conc <- as.numeric(
+  dataWB_HTR8$conc
+)
+
+#Let's see if it worked
+head(dataWB_HTR8)
+```
+
+
+```{r}
+#Now lets try fitting a regression
+
+#first, for Endoglin
+EndHTR8 <- lm(
+  exp ~ conc,
+  data = dataWB_HTR8,
+  subset = prot == "Endoglin"
+)
+
+#Let's see if it worked
+summary(
+  EndHTR8
+  )
+
+```
+
+So, for **Endoglin**, the variance of the linear regression **does not** vary significantly from a line with an angular coefficient of zero.
+
+```{r}
+#Now, let's see for PIGF
+PIGFHTR8 <- lm(
+  exp ~ conc,
+  data = dataWB_HTR8,
+  subset = prot == "PlGF"
+)
+
+tail(
+  dataWB_HTR8$prot
+  ) #checking the name in the dataframe, something happened in the importation
+
+#Let's see the results
+
+summary(
+  PIGFHTR8
+  )
+
+```
+
+We achieved the **same** result with **PIGF**.
+
+### BeWo
+
+Now, let's try with **BeWo** cells
+
+```{r}
+#First, let's import the data
+
+dataWB_BeWo <- read.csv(
+  "Dados_westernblot_form_BeWo.csv"
+)
+
+#Let's view the data
+View(
+  dataWB_BeWo
+  )
+
+head(
+  dataWB_BeWo
+  )
+```
+
+Now, let's visualize the data
+
+```{r}
+#transforming conc from db to chr
+dataWB_BeWo$conc <- as.character(
+  dataWB_BeWo$conc
+)
+
+#see if it worked
+head(
+  dataWB_BeWo
+)
+```
+And, finally, plot for insights
+
+```{r}
+#| dev: png
+ggplot(
+  data = dataWB_BeWo
+    ) + 
+  geom_point(
+    mapping = aes(
+      x = conc,
+      y = exp,
+      colour = prot
+    ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot BeWo",
+    x = "Dose concentration (ug)",
+    y = "Relative Protein Expression",
+    color = "Protein"
+  )
+```
+
+A nicer distribution, right?
+
+Let's fit our regression
+
+```{r}
+#Changing conc back to db
+dataWB_BeWo$conc <- as.numeric(
+  dataWB_BeWo$conc
+)
+
+head(
+  dataWB_BeWo
+  )
+```
+Everything fine
+
+```{r}
+BewoEnd <- lm(
+  exp ~ conc,
+  data = dataWB_BeWo,
+  subset = prot == "Endoglin"
+)
+
+summary(
+  BewoEnd
+)
+```
+```{r}
+BewoPIGF <- lm(
+  exp ~ conc,
+  data = dataWB_BeWo,
+  subset = prot == "PlGF"
+)
+
+summary(
+  BewoPIGF
+)
+```
+
+Summarizing, **none of the expressions varied in such a way that fitting a regression would achieve an angular coefficient significantly different than zero.**
