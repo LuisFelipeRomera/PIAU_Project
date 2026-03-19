@@ -1,0 +1,350 @@
+---
+title: "PIAU 2"
+author: "Luís Romera"
+format: pdf
+editor: visual
+---
+
+## Objective
+
+Let's try managing the data in a different way to fit the regression.
+
+## Data manipulation
+
+Let's try fitting through the **average values**, instead of the absolute values.
+
+### HTR8
+
+```{r}
+
+library(magick)
+
+setwd(
+  "C:/Users/luisr/Documentos/Documents/Documentos - Copia/Projeto Thati/PIAU_Project"
+  )
+
+Havg <- read.csv(
+  "Dados_westernblot_form_HTR8.csv"
+  )
+
+View(
+  Havg
+  )
+
+head(
+  Havg
+  )
+```
+
+### Plotting the data
+
+```{r}
+#| message: false
+#| warning: false
+#| dev: png
+
+Havg$conc <- as.character(
+  Havg$conc
+)
+
+library(tidyverse)
+
+ggplot(
+  data = subset(
+    Havg, tipo == "mean"
+    )
+) + 
+  geom_point(
+    mapping = aes(
+      x = conc, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot HTR8",
+    xlab = "Concentration (ug)",
+    ylab = "Relative Expression",
+    colour = "Protein"
+  )
+```
+
+## Fitting the regression
+
+### Endoglin
+
+```{r}
+
+Havg$conc <- as.numeric(
+  Havg$conc
+)
+
+modelHE <- lm(
+  exp ~ conc,
+  data = Havg,
+  subset = prot == "Endoglin" & tipo == "mean"
+)
+
+summary(
+  modelHE
+  )
+```
+
+The **regression** fitted to the expression of **endoglin** shows a **significant** angular coefficient very close to zero, but that is **negative** and could be interpreted as a **minor negative effect of the treatment**.
+
+### PIGF
+
+```{r}
+
+modelHP <- lm(
+  exp ~ conc,
+  data = Havg,
+  subset = prot == "PlGF" & tipo == "mean"
+)
+
+summary(
+  modelHP
+  )
+```
+
+**PIGF**, on the other side, shows **no significant coefficient** what could be interpreted as **lack of treatment effect**.
+
+## BeWo
+
+```{r}
+
+Bavg <- read.csv(
+  "Dados_westernblot_form_BeWo.csv"
+)
+
+View(
+  Bavg
+     )
+
+head(
+  Bavg
+)
+```
+
+### Plotting the data
+
+```{r}
+#| dev: png
+Bavg$conc <- as.character(
+  Bavg$conc
+)
+
+ggplot(
+  data = subset(
+    Bavg, tipo == "mean"
+    )
+) + 
+  geom_point(
+    mapping = aes(
+      x = conc, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot BeWo",
+    xlab = "Concentration (ug)",
+    ylab = "Relative Expression",
+    colour = "Protein"
+  )
+```
+
+## Fitting the regression
+
+### Endoglin
+
+```{r}
+
+Bavg$conc <- as.numeric(
+  Bavg$conc
+)
+
+modelBE <- lm(
+  exp ~ conc,
+  data = Bavg,
+  subset = prot == "Endoglin" & tipo == "mean"
+)
+
+summary(
+  modelBE
+  )
+```
+
+In **BeWo** cells, there was **no significant angular coefficient for endoglin.**
+
+### PIGF
+
+```{r}
+
+modelBP <- lm(
+  exp ~ conc,
+  data = Bavg,
+  subset = prot == "PlGF" & tipo == "mean"
+)
+
+summary(
+  modelBP
+  )
+```
+
+**None for PIGF** either.
+
+## Alternative
+
+Analyzing the data, we may be facing a logarithmic relation, which could be affecting the linear regression.
+
+Thus, let's try fitting through a logarithmic values first.
+
+### HTR8
+
+```{r}
+Havg$log <- ifelse(
+  Havg$conc > 0,
+  log10(
+    Havg$conc
+  ),
+  NA
+)
+
+#creating a log column, transforming Log0 in NAs
+
+View(Havg)
+
+head(Havg)
+```
+
+### Plotting the Data
+
+```{r}
+#| dev: png
+ggplot(
+  data = subset(
+    Havg, tipo == "mean"
+    )
+) + 
+  geom_point(
+    mapping = aes(
+      x = log, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot HTR8",
+    xlab = "Log Concentration (ug)",
+    ylab = "Relative Expression",
+    colour = "Protein"
+  )
+```
+
+Much smoother plot.
+
+# Fitting the regression
+
+### Endoglin
+
+```{r}
+modelHE <- lm(
+  exp ~ log,
+  data = Havg,
+  subset = prot == "Endoglin" & tipo == "mean"
+)
+
+summary(
+  modelHE
+  )
+```
+
+### PIFG
+
+```{r}
+modelHP <- lm(
+  exp ~ log,
+  data = Havg,
+  subset = prot == "PlGF" & tipo == "mean"
+)
+
+summary(
+  modelHP
+  )
+
+
+```
+
+### BeWo
+
+```{r}
+Bavg$log <- ifelse(
+  Bavg$conc > 0,
+  log10(
+    Bavg$conc
+  ),
+  NA
+)
+
+#creating a log column, transforming Log0 in NAs
+
+View(Bavg)
+
+head(Bavg)
+```
+
+### Plotting the data
+
+```{r}
+#| dev: png
+
+ggplot(
+  data = subset(
+    Bavg, tipo == "mean"
+    )
+) + 
+  geom_point(
+    mapping = aes(
+      x = log, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot BeWo",
+    xlab = "Log Concentration (ug)",
+    ylab = "Relative Expression",
+    colour = "Protein"
+  )
+```
+
+## Fitting the regression
+
+### Endoglin
+
+```{r}
+modelBE <- lm(
+  exp ~ log,
+  data = Bavg,
+  subset = prot == "Endoglin" & tipo == "mean"
+)
+
+summary(
+  modelBE
+  )
+
+
+```
+
+### PIFG
+
+```{r}
+modelBP <- lm(
+  exp ~ log,
+  data = Bavg,
+  subset = prot == "PlGF" & tipo == "mean"
+)
+
+summary(
+  modelBP
+  )
+```
+
+Analyzing now these data, **we acquired a significant angular coefficient for Endoglin on BeWo cells**. With the coefficient being positive, we shall discuss that the **treatment may cause a positive effect in the expression of Endoglin**.

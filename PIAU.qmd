@@ -1,7 +1,7 @@
 ---
 title: "PIAU"
 author: "Luís Romera"
-format: pdf
+format: html
 editor: visual
 ---
 
