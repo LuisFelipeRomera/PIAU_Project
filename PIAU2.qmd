@@ -62,8 +62,8 @@ ggplot(
   ) +
   labs(
     title = "Western Blot HTR8",
-    xlab = "Concentration (ug)",
-    ylab = "Relative Expression",
+    x = "Concentration (ug)",
+    y = "Relative Expression",
     colour = "Protein"
   )
 ```
@@ -146,8 +146,8 @@ ggplot(
   ) +
   labs(
     title = "Western Blot BeWo",
-    xlab = "Concentration (ug)",
-    ylab = "Relative Expression",
+    x = "Concentration (ug)",
+    y = "Relative Expression",
     colour = "Protein"
   )
 ```
@@ -220,6 +220,7 @@ head(Havg)
 
 ```{r}
 #| dev: png
+
 ggplot(
   data = subset(
     Havg, tipo == "mean"
@@ -233,8 +234,8 @@ ggplot(
   ) +
   labs(
     title = "Western Blot HTR8",
-    xlab = "Log Concentration (ug)",
-    ylab = "Relative Expression",
+    x = "Log Concentration (ug)",
+    y = "Relative Expression",
     colour = "Protein"
   )
 ```
@@ -273,7 +274,95 @@ summary(
 
 ```
 
-### BeWo
+```{r}
+#| dev: png
+
+#creating a new data frame with 100 values between the max and the min
+#log value
+visuHE <- data.frame( 
+  log = seq(
+    min(
+      Havg$log[is.finite(
+        Havg$log
+      )]
+    ),
+    max(
+      Havg$log[is.finite(
+        Havg$log
+      )]
+    ),
+    length.out = 100
+  )
+)
+
+#Adding an expression response for each point based in the regression
+visuHE$pred <- predict(
+  modelHE,
+  visuHE
+)
+
+View(visuHE)
+
+visuHP <- data.frame(
+  log = seq(
+    min(
+      Havg$log[is.finite(
+        Havg$log
+      )]
+    ),
+    max(
+      Havg$log[is.finite(
+        Havg$log
+      )]
+    ),
+    length.out = 100
+  )
+)
+
+visuHP$pred <- predict(
+  modelHP,
+  visuHP
+)
+
+#plotting the regression lines
+ggplot(
+  data = subset(
+    Havg, tipo == "mean"
+    )
+) + 
+  geom_line(
+    data = visuHP,
+    aes(
+      x = log,
+      y = pred
+    ),
+    color = "grey",
+    linewidth = 1
+  ) +
+   geom_line(
+    data = visuHE,
+    aes(
+      x = log,
+      y = pred
+    ),
+    color = "grey",
+    linewidth = 1
+  ) +
+  geom_point(
+    mapping = aes(
+      x = log, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot HTR8",
+    x = "Log Concentration (ug)",
+    y = "Relative Expression",
+    colour = "Protein"
+  )
+```
+
+## BeWo
 
 ```{r}
 Bavg$log <- ifelse(
@@ -309,8 +398,8 @@ ggplot(
   ) +
   labs(
     title = "Western Blot BeWo",
-    xlab = "Log Concentration (ug)",
-    ylab = "Relative Expression",
+    x = "Log Concentration (ug)",
+    y = "Relative Expression",
     colour = "Protein"
   )
 ```
@@ -344,6 +433,100 @@ modelBP <- lm(
 
 summary(
   modelBP
+  )
+```
+
+```{r}
+modelBP <- lm(
+  exp ~ log,
+  data = Bavg,
+  subset = prot == "PlGF" & tipo == "mean"
+)
+
+summary(
+  modelBP
+  )
+```
+
+```{r}
+#| dev: png
+
+visuBE <- data.frame(
+  log = seq(
+    min(
+      Bavg$log[is.finite(
+        Bavg$log
+      )]
+    ),
+    max(
+      Bavg$log[is.finite(
+        Bavg$log
+      )]
+    ),
+    length.out = 100
+  )
+)
+
+visuBE$pred <- predict(
+  modelBE,
+  visuBE
+)
+
+visuBP <- data.frame(
+  log = seq(
+    min(
+      Bavg$log[is.finite(
+        Bavg$log
+      )]
+    ),
+    max(
+      Bavg$log[is.finite(
+        Bavg$log
+      )]
+    ),
+    length.out = 100
+  )
+)
+
+visuBP$pred <- predict(
+  modelBP,
+  visuBP
+)
+
+ggplot(
+  data = subset(
+    Bavg, tipo == "mean"
+    )
+) + 
+  geom_line(
+    data = visuBP,
+    aes(
+      x = log,
+      y = pred
+    ),
+    color = "grey",
+    linewidth = 1
+  ) +
+   geom_line(
+    data = visuBE,
+    aes(
+      x = log,
+      y = pred
+    ),
+    color = "grey",
+    linewidth = 1
+  ) +
+  geom_point(
+    mapping = aes(
+      x = log, y = exp, colour = prot
+      ),
+    size = 3
+  ) +
+  labs(
+    title = "Western Blot HTR8",
+    x = "Log Concentration (ug)",
+    y = "Relative Expression",
+    colour = "Protein"
   )
 ```
 
