@@ -523,7 +523,7 @@ ggplot(
     size = 3
   ) +
   labs(
-    title = "Western Blot HTR8",
+    title = "Western Blot BeWo",
     x = "Log Concentration (ug)",
     y = "Relative Expression",
     colour = "Protein"
